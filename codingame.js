@@ -32,10 +32,10 @@ function findBestTarget(rows) {
   };
   for (var y = 0; y < rows.length; y++) {
     for (var x = 0; x < rows[0].length; x++) {
-      if (rows[y][x] !== '.') {
+      const numberOfBoxes = numberOfBoxesToBomb(x, y, rows);
+      if (rows[x][y] !== '.') {
         break;
       }
-      const numberOfBoxes = numberOfBoxesToBomb(x, y, rows);
       if (numberOfBoxes > bestTarget.numberOfBoxes ) {
         bestTarget = {
           x: x,
@@ -50,19 +50,19 @@ function findBestTarget(rows) {
 
 function findMyself(entities, myId) {
   return entities.filter(entity => {
-    // printErr('entity.entityType', entity.entityType);
-    // printErr('entity.owner', entity.owner);
-    // printErr('entity.x', entity.x);
-    // printErr('entity.y', entity.y);
     return entity.entityType == 0 && entity.owner == myId;
   })[0];
 }
+
 try {
   var inputs = readline().split(' ');
   var width = parseInt(inputs[0]);
   var height = parseInt(inputs[1]);
   var myId = parseInt(inputs[2]);
 
+  let myBombs = [{
+    timeBeforeNext: 0
+  }];
   // game loop
   while (true) {
       var rows = [];
@@ -106,9 +106,11 @@ try {
       }
   }
 } catch (e) {
+  console.log(e);
   module.exports = {
     countBoxes,
     numberOfBoxesToBomb,
-    findBestTarget
+    findBestTarget,
+    findMyself
   };
 }
