@@ -9,7 +9,7 @@ function numberOfBoxesToBomb(targetX, targetY, rows) {
   let boxesToExplode = 0;
   for (var y = 0; y < rows.length; y++) {
     for (var x = 0; x < rows[0].length; x++) {
-      const isBox = rows[y][x] === '0';
+      const isBox = ['0','1','2'].includes(rows[y][x]);
 
       const isCloseToTarget = Math.abs(targetX - x) <= bombRange - 1 && Math.abs(targetY - y) <= bombRange - 1;
       const isNotTarget = targetX !== x || targetY !== y;
@@ -32,11 +32,11 @@ function findBestTarget(rows) {
   };
   for (var y = 0; y < rows.length; y++) {
     for (var x = 0; x < rows[0].length; x++) {
+      if (rows[y][x] !== '.') {
+        break;
+      }
       const numberOfBoxes = numberOfBoxesToBomb(x, y, rows);
-      // printErr('numberOfBoxes', numberOfBoxes);
-      // printErr('x', x);
-      // printErr('y', y);
-      if (numberOfBoxes > bestTarget.numberOfBoxes) {
+      if (numberOfBoxes > bestTarget.numberOfBoxes ) {
         bestTarget = {
           x: x,
           y: y,
@@ -48,6 +48,15 @@ function findBestTarget(rows) {
   return bestTarget;
 }
 
+function findMyself(entities, myId) {
+  return entities.filter(entity => {
+    // printErr('entity.entityType', entity.entityType);
+    // printErr('entity.owner', entity.owner);
+    // printErr('entity.x', entity.x);
+    // printErr('entity.y', entity.y);
+    return entity.entityType == 0 && entity.owner == myId;
+  })[0];
+}
 try {
   var inputs = readline().split(' ');
   var width = parseInt(inputs[0]);
@@ -60,6 +69,7 @@ try {
       for (var i = 0; i < height; i++) {
           rows.push(readline());
       }
+
       // printErr(rows)
       var entities = [];
       var entitiesNumber = parseInt(readline());
@@ -78,11 +88,22 @@ try {
 
       // Write an action using print()
       // To debug: printErr('Debug messages...');
+      // printErr(JSON.stringify(rows));
       const bestTarget = findBestTarget(rows);
-      printErr('bestTarget', bestTarget);
+      // printErr('_______________________');
+
+      const myChar = findMyself(entities, myId);
+      printErr('bestTarget', bestTarget.x, bestTarget.y, '|', bestTarget.numberOfBoxes);
+      printErr('myChar', myChar.x, myChar.y);
       printErr('_______________________');
 
-      print(`BOMB ${bestTarget.x} ${bestTarget.y}`);
+      if (myChar.x === bestTarget.x && myChar.y === bestTarget.y) {
+        print(`BOMB ${bestTarget.x} ${bestTarget.y}`);
+      }
+      else {
+        print(`MOVE ${bestTarget.x} ${bestTarget.y}`);
+
+      }
   }
 } catch (e) {
   module.exports = {
