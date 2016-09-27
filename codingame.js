@@ -33,7 +33,7 @@ function findBestTarget(rows) {
   for (var y = 0; y < rows.length; y++) {
     for (var x = 0; x < rows[0].length; x++) {
       const numberOfBoxes = numberOfBoxesToBomb(x, y, rows);
-      if (rows[x][y] !== '.') {
+      if (!rows[x] || rows[x][y] !== '.') {
         break;
       }
       if (numberOfBoxes > bestTarget.numberOfBoxes ) {
@@ -52,6 +52,36 @@ function findMyself(entities, myId) {
   return entities.filter(entity => {
     return entity.entityType == 0 && entity.owner == myId;
   })[0];
+}
+
+function placeBomb(target) {
+  print(`BOMB ${target.x} ${target.y}`);
+}
+
+function hasBombs(entities, myId) {
+  return findMyself(entities, myId).param2 > 1;
+}
+
+function hasBombs(entities, myId) {
+  return findMyself(entities, myId).param2 > 1;
+}
+
+function getItemList(entities) {
+  return entities.filter(entity => entity.entityType === 2)
+}
+
+function distanceBetween(itemA, itemB) {
+  return Math.abs(itemA.x - itemB.x) + Math.abs(itemA.y - itemB.y);
+}
+
+function closerItemFromMe(entities, myId) {
+  const me = findMyself(entities, myId);
+  const items = getItemList(entities);
+  printErr('closerItemFromMe');
+  items.map(item => {
+    printErr('Distance between me and object :');
+    printErr(distanceBetween(me, item));
+  });
 }
 
 try {
@@ -84,6 +114,7 @@ try {
             param2: parseInt(inputs[5])
           });
       }
+
       // entities.map(printErr)
 
       // Write an action using print()
@@ -97,12 +128,12 @@ try {
       printErr('myChar', myChar.x, myChar.y);
       printErr('_______________________');
 
-      if (myChar.x === bestTarget.x && myChar.y === bestTarget.y) {
-        print(`BOMB ${bestTarget.x} ${bestTarget.y}`);
+      closerItemFromMe(entities, myId);
+      if (hasBombs(entities, myId)) {
+        myBombs = placeBomb(bestTarget);
       }
       else {
         print(`MOVE ${bestTarget.x} ${bestTarget.y}`);
-
       }
   }
 } catch (e) {
