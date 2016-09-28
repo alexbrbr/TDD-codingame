@@ -4,8 +4,7 @@ function countBoxes(rows) {
   }, 0);
 }
 
-function numberOfBoxesToBomb(targetX, targetY, rows) {
-  const bombRange = 3;
+function numberOfBoxesToBomb(targetX, targetY, rows, bombRange) {
   let boxesToExplode = 0;
   for (var y = 0; y < rows.length; y++) {
     for (var x = 0; x < rows[0].length; x++) {
@@ -24,7 +23,7 @@ function numberOfBoxesToBomb(targetX, targetY, rows) {
   return boxesToExplode;
 }
 
-function findBestTarget(rows) {
+function findBestTarget(rows, bombRange) {
   let bestTarget = {
     x: 0,
     y: 0,
@@ -32,7 +31,7 @@ function findBestTarget(rows) {
   };
   for (var y = 0; y < rows.length; y++) {
     for (var x = 0; x < rows[0].length; x++) {
-      const numberOfBoxes = numberOfBoxesToBomb(x, y, rows);
+      const numberOfBoxes = numberOfBoxesToBomb(x, y, rows, bombRange);
       if (!rows[x] || rows[x][y] !== '.') {
         break;
       }
@@ -78,10 +77,16 @@ function closerItemFromMe(entities, myId) {
   const me = findMyself(entities, myId);
   const items = getItemList(entities);
   printErr('closerItemFromMe');
+  let itemToGoAfter = null;
   items.map(item => {
-    printErr('Distance between me and object :');
-    printErr(distanceBetween(me, item));
+    const distance = distanceBetween(me, item);
+    printErr('distance', distance);
+    if (distance < 9) {
+      printErr(`priorizing bomb located at  ${item.x} ${item.y}`);
+      itemToGoAfter = item;
+    }
   });
+  return itemToGoAfter;
 }
 
 try {
@@ -90,9 +95,8 @@ try {
   var height = parseInt(inputs[1]);
   var myId = parseInt(inputs[2]);
 
-  let myBombs = [{
-    timeBeforeNext: 0
-  }];
+  let timeAfterBombExploded = 0;
+
   // game loop
   while (true) {
       var rows = [];
@@ -120,16 +124,23 @@ try {
       // Write an action using print()
       // To debug: printErr('Debug messages...');
       // printErr(JSON.stringify(rows));
-      const bestTarget = findBestTarget(rows);
       // printErr('_______________________');
-
       const myChar = findMyself(entities, myId);
+      const myBombsRange = myChar.param2 - 1;
+
+
+      const bestTarget = findBestTarget(rows, myBombsRange);
+
       printErr('bestTarget', bestTarget.x, bestTarget.y, '|', bestTarget.numberOfBoxes);
       printErr('myChar', myChar.x, myChar.y);
       printErr('_______________________');
 
-      closerItemFromMe(entities, myId);
-      if (hasBombs(entities, myId)) {
+      const closerItem = closerItemFromMe(entities, myId);
+      printErr(closerItem);
+      if (closerItem && closerItem.x) {
+        print(`MOVE ${closerItem.x} ${closerItem.y}`);
+      }
+      else if (hasBombs(entities, myId)) {
         myBombs = placeBomb(bestTarget);
       }
       else {
