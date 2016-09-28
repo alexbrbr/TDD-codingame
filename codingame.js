@@ -69,6 +69,10 @@ function getItemList(entities) {
   return entities.filter(entity => entity.entityType === 2)
 }
 
+function getEnnemiesBombs(entities, myId) {
+  return entities.filter(entity => entity.entityType === 1 && entity.owner !== myId);
+}
+
 function distanceBetween(itemA, itemB) {
   return Math.abs(itemA.x - itemB.x) + Math.abs(itemA.y - itemB.y);
 }
